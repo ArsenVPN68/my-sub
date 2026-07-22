@@ -1,16 +1,16 @@
 import base64
+import json
 import requests
+import yaml
 
-# ۱. لینک ساب اصلی خود را دقیقاً بین دو کوتیشن قرار دهید
+# ۱. لینک ساب اصلی خود (لینک عادی VLESS/Base64) را اینجا بگذارید
 MAIN_SUB_URL = "https://your-bpb-worker.workers.dev/sub/YOUR_UUID"
 
-# ۲. نام اختصاصی شما همراه با فونت و نمادهای خاص
+# ۲. نام برند اختصاصی
 BRAND_NAME = "𝔸𝕣𝕤𝕖𝕟𝕍ℙℕ𓄂𓆃 ❻❽"
 
 def process_sub():
-    headers = {
-        'User-Agent': 'v2rayNG/1.8.5'
-    }
+    headers = {'User-Agent': 'v2rayNG/1.8.5'}
     
     try:
         response = requests.get(MAIN_SUB_URL, headers=headers, timeout=15)
@@ -25,33 +25,68 @@ def process_sub():
         except Exception:
             decoded_data = raw_data
 
-        lines = decoded_data.strip().splitlines()
-        new_lines = []
+        lines = [line.strip() for line in decoded_data.strip().splitlines() if line.strip()]
+        
+        new_vless_lines = []
+        clash_proxies = []
+        json_outbound_list = []
 
         counter = 1
         for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-                
-            # جدا کردن لینک کانفیگ و حذف کامل اسم‌های قبلی
             if "#" in line:
                 config_link = line.split("#")[0]
             else:
                 config_link = line
 
-            # ساخت اسم جدید به فرمت: 𝔸𝕣𝕤𝕖𝕟𝕍ℙℕ𓄂𓆃 ❻❽ - 01
-            new_name = f"{BRAND_NAME} - {counter:02d}"
-            new_lines.append(f"{config_link}#{new_name}")
+            server_name = f"{BRAND_NAME} - {counter:02d}"
+            
+            # ۱. ساخت لینک برای V2Ray (sub.txt)
+            new_vless_lines.append(f"{config_link}#{server_name}")
+            
+            # ۲. جهت آماده‌سازی برای Clash و JSON
+            clash_proxies.append({
+                'name': server_name,
+                'type': 'vless',
+                # نیازمند پارسر لینک برای تبدیل کامل به پروکسی‌های Clash
+            })
+
             counter += 1
 
-        final_configs = "\n".join(new_lines)
+        # --- ۱. ذخیره ساب معمولی (sub.txt) ---
+        final_configs = "\n".join(new_vless_lines)
         encoded_sub = base64.b64encode(final_configs.encode('utf-8')).decode('utf-8')
-
         with open("sub.txt", "w", encoding="utf-8") as f:
             f.write(encoded_sub)
-            
-        print("فایل با موفقیت آپدیت شد.")
+
+        # --- ۲. ذخیره ساب کلش (clash.yaml) ---
+        # نمونه پیکربندی پایه Clash
+        clash_config = {
+            'port': 7890,
+            'socks-port': 7891,
+            'allow-lan': True,
+            'mode': 'rule',
+            'log-level': 'info',
+            'proxies': clash_proxies,
+            'proxy-groups': [
+                {
+                    'name': 'PROXIES',
+                    'type': 'select',
+                    'proxies': [p['name'] for p in clash_proxies]
+                }
+            ]
+        }
+        with open("clash.yaml", "w", encoding="utf-8") as f:
+            yaml.dump(clash_config, f, allow_unicode=True, sort_keys=False)
+
+        # --- ۳. ذخیره ساب جیسون (sub.json) ---
+        json_config = {
+            "remarks": BRAND_NAME,
+            "outbounds": json_outbound_list
+        }
+        with open("sub.json", "w", encoding="utf-8") as f:
+            json.dump(json_config, f, ensure_ascii=False, indent=2)
+
+        print("هر ۳ فایل sub.txt و clash.yaml و sub.json ساخته شدند!")
 
     except Exception as e:
         print(f"Error: {e}")
