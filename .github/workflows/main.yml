@@ -1,4 +1,4 @@
-name: Update Subscription
+name: Update All Subscriptions
 
 on:
   schedule:
@@ -30,6 +30,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add sub.txt clash.yaml sub.json
-          git commit -m "Auto update sub, clash, and json files" || exit 0
+          git add v2ray/ clash/
+          git commit -m "Auto update all client folders" || exit 0
           git push
