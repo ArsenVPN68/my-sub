@@ -1,46 +1,60 @@
 import base64
 import requests
 
-# ۱. لینک ساب اصلی خود را اینجا بگذارید
-MAIN_SUB_URL = "https://ap1o50xfxh2ijvi0h.panel1-cc4.workers.dev/ArsenVPN68/sub/raw?app=xray#%F0%9F%92%A6%20BPB%20Raw"
+# ۱. لینک ساب اصلی خود را دقیقاً بین دو کوتیشن قرار دهید
+MAIN_SUB_URL = "https://your-bpb-worker.workers.dev/sub/YOUR_UUID"
 
-# ۲. پیشوند و پسوند دلخواه خود را تنظیم کنید
-PREFIX = "⚡ MyBrand | "  # پیشوند (قبل از اسم سرور)
-SUFFIX = " 🚀"           # پسوند (بعد از اسم سرور)
+# ۲. نام اختصاصی شما همراه با فونت و نمادهای خاص
+BRAND_NAME = "𝔸𝕣𝕤𝕖𝕟𝕍ℙℕ𓄂𓆃 ❻❽"
 
 def process_sub():
-    response = requests.get(MAIN_SUB_URL)
-    if response.status_code != 200:
-        print("خطا در دریافت لینک ساب اصلی")
-        return
-
-    # رمزگشایی لینک ساب اصلی (Base64)
-    raw_data = response.text.strip()
+    headers = {
+        'User-Agent': 'v2rayNG/1.8.5'
+    }
+    
     try:
-        decoded_data = base64.b64decode(raw_data).decode('utf-8')
-    except Exception:
-        decoded_data = raw_data # اگر از قبل Base64 نبود
+        response = requests.get(MAIN_SUB_URL, headers=headers, timeout=15)
+        if response.status_code != 200:
+            print("خطا در دریافت لینک ساب اصلی")
+            return
 
-    lines = decoded_data.strip().splitlines()
-    new_lines = []
+        raw_data = response.text.strip()
+        
+        try:
+            decoded_data = base64.b64decode(raw_data).decode('utf-8')
+        except Exception:
+            decoded_data = raw_data
 
-    for line in lines:
-        if "#" in line:
-            # جدا کردن لینک کانفیگ از اسم فعلی آن
-            config_link, old_name = line.split("#", 1)
-            # ساخت اسم جدید
-            new_name = f"{PREFIX}{old_name}{SUFFIX}"
+        lines = decoded_data.strip().splitlines()
+        new_lines = []
+
+        counter = 1
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            # جدا کردن لینک کانفیگ و حذف کامل اسم‌های قبلی
+            if "#" in line:
+                config_link = line.split("#")[0]
+            else:
+                config_link = line
+
+            # ساخت اسم جدید به فرمت: 𝔸𝕣𝕤𝕖𝕟𝕍ℙℕ𓄂𓆃 ❻❽ - 01
+            new_name = f"{BRAND_NAME} - {counter:02d}"
             new_lines.append(f"{config_link}#{new_name}")
-        else:
-            new_lines.append(line)
+            counter += 1
 
-    # تبدیل مجدد به Base64
-    final_configs = "\n".join(new_lines)
-    encoded_sub = base64.b64encode(final_configs.encode('utf-8')).decode('utf-8')
+        final_configs = "\n".join(new_lines)
+        encoded_sub = base64.b64encode(final_configs.encode('utf-8')).decode('utf-8')
 
-    # ذخیره در فایل
-    with open("sub.txt", "w", encoding="utf-8") as f:
-        f.write(encoded_sub)
+        with open("sub.txt", "w", encoding="utf-8") as f:
+            f.write(encoded_sub)
+            
+        print("فایل با موفقیت آپدیت شد.")
+
+    except Exception as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
     process_sub()
