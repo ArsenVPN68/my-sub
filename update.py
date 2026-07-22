@@ -4,7 +4,7 @@ import requests
 import yaml
 
 # ۱. لینک ساب اصلی خود (لینک عادی VLESS/Base64) را اینجا بگذارید
-MAIN_SUB_URL = "https://your-bpb-worker.workers.dev/sub/YOUR_UUID"
+MAIN_SUB_URL = "https://ap1o50xfxh2ijvi0h.panel1-cc4.workers.dev/ArsenVPN68/sub/raw?app=xray#%F0%9F%92%A6%20BPB%20Raw"
 
 # ۲. نام برند اختصاصی
 BRAND_NAME = "𝔸𝕣𝕤𝕖𝕟𝕍ℙℕ𓄂𓆃 ❻❽"
