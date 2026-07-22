@@ -2,7 +2,7 @@ import base64
 import requests
 
 # ۱. لینک ساب اصلی خود را اینجا بگذارید
-MAIN_SUB_URL = "https://ap1o50xfxh2ijvi0h.panel1-cc4.workers.dev/ArsenVPN68/sub/normal?app=xray#%F0%9F%92%A6%20BPB%20Normal"
+MAIN_SUB_URL = "https://ap1o50xfxh2ijvi0h.panel1-cc4.workers.dev/ArsenVPN68/sub/raw?app=xray#%F0%9F%92%A6%20BPB%20Raw"
 
 # ۲. پیشوند و پسوند دلخواه خود را تنظیم کنید
 PREFIX = "⚡ MyBrand | "  # پیشوند (قبل از اسم سرور)
