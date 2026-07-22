@@ -21,7 +21,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install requests pyyaml
 
       - name: Run script
         run: python update.py
@@ -30,6 +30,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add sub.txt
-          git commit -m "Auto update sub" || exit 0
+          git add sub.txt clash.yaml sub.json
+          git commit -m "Auto update sub, clash, and json files" || exit 0
           git push
